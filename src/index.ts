@@ -1,9 +1,11 @@
-const fastify = require("fastify")({ logger: true });
+import fastify from "fastify";
 import { PrismaClient } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { config } from "dotenv";
 
 // Load environment variables
 config();
+const server = fastify({ logger: true });
 
 // Middleware to check API key
 const apiKeyMiddleware = async (request, reply) => {
@@ -17,8 +19,8 @@ const apiKeyMiddleware = async (request, reply) => {
 
 const setup = async () => {
   const prisma = new PrismaClient();
-  await fastify.register(require("@fastify/swagger"));
-  await fastify.register(require("@fastify/swagger-ui"), {
+  await server.register(require("@fastify/swagger"));
+  await server.register(require("@fastify/swagger-ui"), {
     routePrefix: "/documentation",
     uiConfig: {
       docExpansion: "full",
@@ -53,7 +55,7 @@ const setup = async () => {
   };
 
   // Register a new subdomain with a URL to redirect to
-  fastify.post(
+  server.post(
     "/v1/register-domain",
     { schema: registerDomainSchema, preHandler: apiKeyMiddleware },
     async (request, reply) => {
@@ -61,22 +63,23 @@ const setup = async () => {
         subdomain: string;
         url: string;
       };
-
       try {
         await prisma.redirect.create({
           data: { subdomain, url },
         });
         return reply.status(200).send({ status: "ok" });
       } catch (error) {
-        return reply
-          .status(400)
-          .send({ status: "error", message: "Failed to register domain" });
+        const message =
+          error.code === "P2002"
+            ? "Subdomain already exists"
+            : "Failed to register domain";
+        return reply.status(400).send({ status: "error", message });
       }
     },
   );
 
   // Handle redirection based on the subdomain
-  fastify.get("/", async (request, reply) => {
+  server.get("/", async (request, reply) => {
     const host = request.headers.host;
     const subdomain = host?.split(".")[0];
 
@@ -96,7 +99,7 @@ const setup = async () => {
   });
 
   // Custom error handler
-  fastify.setErrorHandler((error, request, reply) => {
+  server.setErrorHandler((error, _request, reply) => {
     if (error.validation) {
       // Handle validation errors
       reply.status(400).send({
@@ -112,19 +115,18 @@ const setup = async () => {
       });
     }
   });
-  return fastify;
 };
 
 const start = async () => {
   await setup();
   try {
-    await fastify.listen({
+    await server.listen({
       port: 3000,
       host: "0.0.0.0",
     });
     console.log(`Server is running at http://localhost:3000`);
   } catch (err) {
-    fastify.log.error(err);
+    server.log.error(err);
     process.exit(1);
   }
 };
