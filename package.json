@@ -5,25 +5,25 @@
   "main": "dist/index.js",
   "scripts": {
     "build:schema": "node scripts/build-schema.js",
-    "dev": "npm run build:schema && nodemon",
-    "build": "NODE_ENV=production npm run build:schema && sucrase ./src -d ./dist --transforms typescript,imports",
+    "dev": "nodemon",
+    "build": "NODE_ENV=production sucrase ./src -d ./dist --transforms typescript,imports",
     "start": "node dist/index.js",
-    "migrate:dev": "npm run build:schema && npx prisma migrate dev --name init",
-    "migrate:prod": "NODE_ENV=production npm run build:schema && npx prisma migrate deploy"
+    "migrate:dev": "npx prisma migrate dev --name init && npx prisma generate",
+    "migrate:prod": "NODE_ENV=production npx prisma migrate deploy && npx prisma generate"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@fastify/swagger": "^8.14.0",
     "@fastify/swagger-ui": "^3.0.0",
-    "@prisma/client": "^5.14.0",
+    "@prisma/client": "^5.15.0",
     "dotenv": "^16.4.5",
     "fastify": "^4.27.0",
-    "fastify-swagger": "^5.2.0",
     "nodemon": "^3.1.0",
     "sucrase": "^3.35.0"
   },
   "devDependencies": {
+    "@flydotio/dockerfile": "^0.5.7",
     "@types/node": "^20.12.12",
     "prisma": "^5.14.0",
     "typescript": "^5.4.5"

@@ -1,6 +1,5 @@
 import fastify from "fastify";
 import { PrismaClient } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { config } from "dotenv";
 
 // Load environment variables
@@ -97,6 +96,21 @@ const setup = async () => {
       .status(404)
       .send({ status: "error", message: "Subdomain not found" });
   });
+
+  server.get(
+    "/_healthcheck",
+    { config: { hide: true } },
+    async (_request, reply) => {
+      try {
+        await prisma.$queryRaw`SELECT 1`;
+      } catch (error) {
+        console.error(error);
+        return reply.status(500).send({ status: "error" });
+      }
+      // await prisma.$queryRaw`SELECT 1`;
+      return reply.status(200).send({ status: "ok" });
+    },
+  );
 
   // Custom error handler
   server.setErrorHandler((error, _request, reply) => {

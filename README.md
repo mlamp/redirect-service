@@ -1,5 +1,3 @@
-### README.md
-
 # Fastify Redirect Service
 
 This is a simple redirect service built with Fastify, Prisma, and TypeScript. It supports registering subdomains and redirecting requests to the specified URLs.
@@ -10,15 +8,15 @@ This is a simple redirect service built with Fastify, Prisma, and TypeScript. It
 
 - Node.js (>= 14.x)
 - npm
-- PostgreSQL (for production)
+- PostgreSQL
 
 ### Installation
 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-repo/fastify-redirect-service.git
-   cd fastify-redirect-service
+   git clone https://github.com/mlamp/redirect-service
+   cd redirect-service
    ```
 
 2. Install dependencies:
@@ -28,32 +26,24 @@ This is a simple redirect service built with Fastify, Prisma, and TypeScript. It
 
 ### Configuration
 
-The application uses environment variables to configure database connections. Create a `.env` file in the root of the project with the following content for local development:
+The application uses environment variables to configure database connections. Create a `.env` file in the root of the project with the following content:
 
 ```env
-DATABASE_PROVIDER="sqlite"
-DATABASE_URL="file:./dev.db"
-API_KEY="your-secret-api-key"
-```
-
-For production, create a `.env.production` file with the following content:
-
-```env
-DATABASE_PROVIDER="postgresql"
 DATABASE_URL="postgresql://username:password@localhost:5432/mydatabase"
 API_KEY="your-secret-api-key"
 ```
 
 ### Database Setup
 
-#### Local Development (SQLite)
+#### Local Development
 
-1. Generate the Prisma client and run migrations:
+1. Ensure your PostgreSQL server is running and accessible.
+2. Generate the Prisma client and run migrations:
    ```bash
    npm run migrate:dev
    ```
 
-#### Production (PostgreSQL)
+#### Production
 
 1. Ensure your PostgreSQL server is running and accessible.
 2. Generate the Prisma client and run migrations:
@@ -106,7 +96,7 @@ API_KEY="your-secret-api-key"
 
 #### Redirect
 
-- **URL**: `http://example.somedomain.tg`
+- **URL**: `http://example.whale.tg`
 - **Method**: `GET`
 - **Response**: Redirects to the URL registered for the subdomain.
 
